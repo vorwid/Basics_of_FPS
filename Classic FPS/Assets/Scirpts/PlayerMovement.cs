@@ -7,14 +7,14 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     
-    public float playerWalkingSpeed = 5f;
-    public float playerRunningSpeed = 15f;
-    public float jumpStrenght = 20f;
+    public float PlayerWalkingSpeed = 5f;
+    public float PlayerRunningSpeed = 15f;
+    public float JumpStrenght = 20f;
     public float verticalRotationLimit = 80f;
 
     float forwardMovement;
     float sidewaysMovement;
-    float verticalVelocity;
+    float VerticalVelosity;
 
     float verticalRotation = 0;
     CharacterController cc;
@@ -37,24 +37,27 @@ public class PlayerMovement : MonoBehaviour
         Camera.main.transform.localRotation = Quaternion.Euler(verticalRotation, 0, 0);
 
         //Player movement
-        forwardMovement = Input.GetAxis("Vertical") * playerWalkingSpeed;
-        sidewaysMovement = Input.GetAxis("Horizontal") * playerWalkingSpeed;
-        if(Input.GetKey(KeyCode.LeftShift))
+        if (cc.isGrounded)
         {
-           forwardMovement = Input.GetAxis("Vertical") * playerRunningSpeed;
-           sidewaysMovement = Input.GetAxis("Horizontal") * playerRunningSpeed; 
+            forwardMovement = Input.GetAxis("Vertical") * PlayerWalkingSpeed;
+            sidewaysMovement = Input.GetAxis("Horizontal") * PlayerWalkingSpeed;
+
+            if (Input.GetKey(KeyCode.LeftShift)) //sprawdzamy czy gracz chce sprint
+            {
+                forwardMovement = Input.GetAxis("Vertical") * PlayerRunningSpeed;
+                sidewaysMovement = Input.GetAxis("Horizontal") * PlayerRunningSpeed;
+            }
         }
 
-        Vector3 playerMovement = new Vector3(sidewaysMovement, verticalVelocity, forwardMovement);
+        VerticalVelosity += Physics.gravity.y * Time.deltaTime;
 
-        verticalVelocity += Physics.gravity.y * Time.deltaTime;
-
-        if(Input.GetButton("Jump"))
+        if (Input.GetButton("Jump") && cc.isGrounded) //sprawdzamy czy gracz jest uziemiony
         {
-            verticalVelocity = jumpStrenght;
+            VerticalVelosity = JumpStrenght;
         }
 
-        cc.Move(transform.rotation * playerMovement * Time.deltaTime);
+        Vector3 PlayerMovement = new Vector3(sidewaysMovement, VerticalVelosity, forwardMovement);
 
+        cc.Move(transform.rotation * PlayerMovement * Time.deltaTime);
     }
 }
